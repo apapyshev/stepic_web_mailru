@@ -1,17 +1,17 @@
 import socket
 
-HOST = '127.0.0.1'  # Standard loopback interface address (localhost)
-PORT = 2222        # Port to listen
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+s.bind(('0.0.0.0', 2222))
+s.listen(1)
 
-with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-    s.bind((HOST, PORT))
-    s.listen()
-    conn, addr = s.accept()
-    with conn:
-        print('Connected by', addr)
-        while True:
-            data = conn.recv(1024)
-            if not data:
-                break
-            conn.sendall(data)
-            conn.close()
+while True:
+    client, addr = s.accept()
+    data = client.recv(1024)
+    if len(data) > 1024 or data == b'close':
+        print("close")
+        client.close()
+        break
+    else:
+        if len(data) > 0:
+            client.send(data)
+            print(data)
